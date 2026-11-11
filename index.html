@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANAMIRA DASHBOARD - Enterprise Fleet & Operations Management</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter (Latin) & Cairo (Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            arabic: ['Cairo', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            surface: {
+              main: '#f8fafc',
+              card: '#ffffff',
+              subtle: '#f1f5f9',
+              border: '#e2e8f0',
+              hover: '#f8fafc'
+            }
+          },
+          boxShadow: {
+            card: '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+            glow: '0 4px 20px -2px rgba(79, 70, 229, 0.15)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Sleek custom scrollbars for high-density ERP views */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Radar pulse marker animation */
+    @keyframes radarPulse {
+      0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+      100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+    .gps-marker-pulse {
+      animation: radarPulse 2s infinite ease-in-out;
+    }
+    
+    /* Print styling optimization */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printableReceiptArea, #printableReceiptArea * {
+        visibility: visible;
+      }
+      #printableReceiptArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-surface-main text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ================= TOP MAIN APP BAR ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-surface-border shadow-sm">
+    <div class="px-4 py-2.5 flex items-center justify-between gap-3">
+      
+      <!-- Brand & Mobile Sidebar Toggle -->
+      <div class="flex items-center gap-3">
+        <button id="sidebarToggleBtn" class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-surface-subtle transition border border-surface-border" title="Toggle Navigation">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-600 text-white flex items-center justify-center font-black text-xl shadow-glow">
+            <span>A</span>
+          </div>
+          <div>
+            <div class="font-extrabold text-base tracking-tight text-slate-900 flex items-center gap-2 leading-tight">
+              <span id="appLogoTitle">ANAMIRA DASHBOARD</span>
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">v5.2 LIVE</span>
+            </div>
+            <div class="text-[11px] text-slate-500 font-medium" id="appLogoSubtitle">Enterprise Fleet & Operations Management System</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Global Search -->
+      <div class="hidden md:flex flex-1 max-w-md mx-6">
+        <div class="relative w-full">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="globalSearchInput" 
+            placeholder="Search fleet plates, contracts, staff members, vouchers..."
+            class="w-full bg-surface-subtle/80 hover:bg-surface-subtle text-slate-800 placeholder-slate-400 text-xs pl-10 pr-4 py-2 rounded-xl border border-surface-border focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus:bg-white transition"
+          />
+        </div>
+      </div>
+
+      <!-- Right Utility Bar -->
+      <div class="flex items-center gap-2">
+        
+        <!-- Language Switcher: English / Arabic -->
+        <button 
+          id="langToggleBtn" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-800 font-bold text-xs border border-surface-border transition shadow-sm active:scale-95"
+          title="Switch Language (عربي / English)"
+        >
+          <i data-lucide="globe" class="w-4 h-4 text-indigo-600"></i>
+          <span id="langDisplayLabel" class="font-arabic font-bold text-xs">عربي</span>
+        </button>
+
+        <!-- Quick GPS Action -->
+        <button onclick="switchTab('tracking')" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 text-xs font-semibold border border-indigo-200 transition">
+          <i data-lucide="navigation" class="w-3.5 h-3.5 text-indigo-600"></i>
+          <span data-i18n="topGps">GPS Live</span>
+        </button>
+
+        <!-- POS Cashier Quick Trigger -->
+        <button onclick="switchTab('trade')" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-xs font-semibold border border-emerald-200 transition">
+          <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span data-i18n="topPos">POS Terminal</span>
+        </button>
+
+        <!-- User Profile Pill -->
+        <div class="flex items-center gap-2.5 pl-2 border-l border-surface-border">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-bold flex items-center justify-center text-xs shadow-sm ring-2 ring-indigo-50">
+            FS
+          </div>
+          <div class="hidden lg:block text-left text-xs leading-tight">
+            <div class="font-bold text-slate-800" id="currentUserName">Faisal (General Manager)</div>
+            <div class="text-[10px] text-slate-500" id="currentUserBranch">Dubai Main Hub • Executive Desk</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN LAYOUT CONTAINER ================= -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- ================= LEFT COLLAPSIBLE SIDEBAR ================= -->
+    <aside id="mainSidebar" class="w-64 bg-white border-r border-surface-border flex flex-col shrink-0 transition-all duration-300 z-30 shadow-card">
+      
+      <!-- Branch / Mode Banner -->
+      <div class="px-4 py-3 bg-surface-subtle/60 border-b border-surface-border flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+          <span class="text-xs font-semibold text-slate-600" data-i18n="systemOnline">Operations Online</span>
+        </div>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-indigo-700 font-bold border border-surface-border shadow-xs">
+          9 VEHICLES
+        </span>
+      </div>
+
+      <!-- Navigation Accordion -->
+      <nav class="flex-1 overflow-y-auto p-3 space-y-1.5 text-xs font-medium" id="sidebarNav">
+
+        <!-- 1. RENTAL & FLEET MODULE -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-50/70 hover:bg-brand-100 text-brand-900 border border-brand-200/80 font-bold shadow-xs transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="car" class="w-4 h-4 text-brand-600"></i>
+              <span data-i18n="modRental">Rental & Fleet</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron rotate-180"></i>
+          </button>
+          <div class="nav-sub-list pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="switchTab('rental', 'fleet')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-semibold flex items-center gap-2 text-xs transition">
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-brand-500"></i>
+              <span data-i18n="subFleetOverview">Fleet Inventory (9 Cars)</span>
+            </button>
+            <button onclick="openNewRentalModal()" class="w-full text-left px-3 py-1.5 rounded-lg bg-emerald-50/70 hover:bg-emerald-100 text-emerald-800 font-bold flex items-center gap-2 text-xs transition border border-emerald-200/60">
+              <i data-lucide="file-plus" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span data-i18n="subNewAgreement">New Rental Contract</span>
+            </button>
+            <button onclick="switchTab('rental', 'contracts')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-600 flex items-center gap-2 text-xs transition">
+              <i data-lucide="scroll" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subContractsTable">Agreements & Leases</span>
+            </button>
+            <button onclick="openFineModal()" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-600 flex items-center gap-2 text-xs transition">
+              <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-500"></i>
+              <span data-i18n="subBreaches">Log Traffic Breach / Fine</span>
+            </button>
+            <button onclick="showModuleToast('Rental Maintenance Log')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-600 flex items-center gap-2 text-xs transition">
+              <i data-lucide="wrench" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subMaintenance">Workshop & Servicing</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. PERSONNEL & HR MODULE -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="users" class="w-4 h-4 text-indigo-500"></i>
+              <span data-i18n="modPersonnel">Personnel & Staff</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="switchTab('personnel')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="user-check" class="w-3.5 h-3.5 text-indigo-500"></i>
+              <span data-i18n="subStaffDirectory">Staff Directory (5 Members)</span>
+            </button>
+            <button onclick="triggerBiometricTimecard()" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-500"></i>
+              <span data-i18n="subDutyClock">TC Biometric Clock-in</span>
+            </button>
+            <button onclick="showModuleToast('Salaries & Allowances')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="banknote" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subPayroll">Payroll & Wages</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. ACCOUNTING & GENERAL LEDGER -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="calculator" class="w-4 h-4 text-emerald-600"></i>
+              <span data-i18n="modAccounting">Accounting & Ledger</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="switchTab('accounting')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="git-branch" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span data-i18n="subChartAccounts">Chart of Accounts</span>
+            </button>
+            <button onclick="switchTab('accounting')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-600"></i>
+              <span data-i18n="subJournalVouchers">Journal Vouchers (JV)</span>
+            </button>
+            <button onclick="showModuleToast('Financial Ledger Reports')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subReports">General Ledger Reports</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. TRADE & POS CASHIER -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-amber-500"></i>
+              <span data-i18n="modTrade">Trade & Cashier</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="switchTab('trade')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-amber-500"></i>
+              <span data-i18n="subPosCashier">Cashier POS Terminal</span>
+            </button>
+            <button onclick="showModuleToast('LPO & Purchase Invoicing')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="file-check-2" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subLpo">LPO & Purchase Orders</span>
+            </button>
+            <button onclick="showModuleToast('Commercial Car Trading / Sales Offers')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="tag" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subCarTrade">Vehicle Sales Offers</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. TRACKING (GPS RADAR) -->
+        <div class="nav-module-group">
+          <button onclick="switchTab('tracking')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="navigation-2" class="w-4 h-4 text-blue-500"></i>
+              <span data-i18n="modTracking">GPS Telemetry</span>
+            </span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">RADAR</span>
+          </button>
+        </div>
+
+        <!-- 6. INVENTORY & WAREHOUSE -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="warehouse" class="w-4 h-4 text-purple-500"></i>
+              <span data-i18n="modInventory">Inventory & Stores</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="showModuleToast('Inventory > Lubricants, Tires & Consumables')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="package" class="w-3.5 h-3.5 text-purple-500"></i>
+              <span data-i18n="subStockItems">Items & Catalog</span>
+            </button>
+            <button onclick="showModuleToast('Inventory > Inter-Branch Stores Transfer')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="repeat" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subStoreTransfer">Warehouse Transfer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 7. FIXED ASSETS -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="building-2" class="w-4 h-4 text-teal-600"></i>
+              <span data-i18n="modAssets">Fixed Assets</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="showModuleToast('Assets > Fleet Valuation & Tag Register')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="qr-code" class="w-3.5 h-3.5 text-teal-600"></i>
+              <span data-i18n="subAssetRegister">Fleet Asset Registry</span>
+            </button>
+            <button onclick="showModuleToast('Assets > Straight-Line Annual Depreciation')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="trending-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subDepreciation">Depreciation Schedule</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 8. ARCHIVE & LEGAL -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="folder-archive" class="w-4 h-4 text-rose-500"></i>
+              <span data-i18n="modArchive">Archive & Legal</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="showModuleToast('Archive > Government & Police Correspondence (Managed by PRO Essa)')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-rose-500"></i>
+              <span data-i18n="subCorrespondence">Mail In / Mail Out</span>
+            </button>
+            <button onclick="showModuleToast('Archive > Court Lawsuits & Legal Filings')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="scale" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span data-i18n="subLawsuits">Legal Cases & Lawsuits</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 9. TABLES & CONFIGURATION -->
+        <div class="nav-module-group">
+          <button class="nav-toggle-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-subtle text-slate-700 font-semibold border border-transparent transition">
+            <span class="flex items-center gap-2.5">
+              <i data-lucide="database" class="w-4 h-4 text-slate-600"></i>
+              <span data-i18n="modTables">Tables & Setup</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200 nav-chevron"></i>
+          </button>
+          <div class="nav-sub-list hidden pt-1 pb-1.5 px-1 space-y-0.5">
+            <button onclick="showModuleToast('Setup > Operational Branches (Dubai Main, Sharjah)')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="map-pinned" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span data-i18n="subBranches">Branches & Hubs</span>
+            </button>
+            <button onclick="showModuleToast('Setup > Corporate Bank Accounts (ENBD / ADCB)')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-surface-subtle text-slate-700 font-medium flex items-center gap-2 text-xs">
+              <i data-lucide="landmark" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span data-i18n="subBanks">Bank Accounts</span>
+            </button>
+            <button onclick="resetToOfficialDefaults()" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-rose-50 text-rose-600 font-bold flex items-center gap-2 text-xs transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span data-i18n="subReset">Reset Demo Data</span>
+            </button>
+          </div>
+        </div>
+
+      </nav>
+
+      <!-- Bottom User / Version Badge -->
+      <div class="p-3 bg-surface-subtle/50 border-t border-surface-border text-[11px] text-slate-500 flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+          <span class="font-mono font-medium">Secured Cloud Node</span>
+        </div>
+        <span class="font-bold text-slate-400">UAE-DXB</span>
+      </div>
+
+    </aside>
+
+    <!-- ================= MAIN VIEWPORT CONTAINER ================= -->
+    <main class="flex-1 overflow-y-auto bg-surface-main p-4 sm:p-6" id="mainContentViewport">
+
+      <!-- ================= TOP METRICS STATS CARDS ================= -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        
+        <!-- Total Fleet Stat -->
+        <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider" data-i18n="statFleetSize">Fleet Size</span>
+            <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <i data-lucide="car" class="w-5 h-5"></i>
+            </span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-2xl font-black text-slate-900" id="metricFleetCount">9</span>
+            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full" id="metricAvailableRatio">6 Ready</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1" data-i18n="statFleetSub">Official fleet registered in Anamira</p>
+        </div>
+
+        <!-- Active Contracts Revenue -->
+        <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider" data-i18n="statDailyYield">Active Day Yield</span>
+            <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i data-lucide="coins" class="w-5 h-5"></i>
+            </span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-2xl font-black text-slate-900 font-mono" id="metricDailyYield">AED 1,400</span>
+            <span class="text-xs font-semibold text-emerald-600">2 on lease</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1" data-i18n="statYieldSub">GMC Yukon + Mercedes E 320</p>
+        </div>
+
+        <!-- Staff / Personnel Count -->
+        <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider" data-i18n="statTeamMembers">Personnel Team</span>
+            <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i data-lucide="user-check" class="w-5 h-5"></i>
+            </span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-2xl font-black text-slate-900 font-mono">5</span>
+            <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">100% On-Duty</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1" data-i18n="statTeamSub">Hussein, Essa, Faisal, Fuad, Abu Saed</p>
+        </div>
+
+        <!-- Traffic Breaches & Fines -->
+        <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] uppercase font-bold text-slate-400 tracking-wider" data-i18n="statTrafficFines">Traffic Violations</span>
+            <span class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <i data-lucide="shield-alert" class="w-5 h-5"></i>
+            </span>
+          </div>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-2xl font-black text-rose-600 font-mono" id="metricFinesTotal">AED 1,120</span>
+            <span class="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">2 Unsettled</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1" data-i18n="statFinesSub">Dubai Police & RTA Salik logs</p>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 1: RENTAL & FLEET (PRIMARY VIEW) ================= -->
+      <section id="view-rental" class="content-view space-y-6">
+        
+        <!-- Controls & Filters Ribbon -->
+        <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1" data-i18n="lblFilter">Status:</span>
+            <button onclick="applyFleetFilter('all')" class="fleet-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-sm" data-status="all">
+              <span data-i18n="filterAll">All (9)</span>
+            </button>
+            <button onclick="applyFleetFilter('available')" class="fleet-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface-subtle hover:bg-slate-200 text-slate-700" data-status="available">
+              <span data-i18n="filterAvailable">Available (6)</span>
+            </button>
+            <button onclick="applyFleetFilter('rented')" class="fleet-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface-subtle hover:bg-slate-200 text-slate-700" data-status="rented">
+              <span data-i18n="filterRented">Rented (2)</span>
+            </button>
+            <button onclick="applyFleetFilter('maintenance')" class="fleet-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface-subtle hover:bg-slate-200 text-slate-700" data-status="maintenance">
+              <span data-i18n="filterMaintenance">Workshop (1)</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="openNewRentalModal()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-glow flex items-center gap-2 transition active:scale-95">
+              <i data-lucide="file-signature" class="w-4 h-4"></i>
+              <span data-i18n="btnCreateAgreement">New Rental Agreement</span>
+            </button>
+            <button onclick="openFineModal()" class="px-3.5 py-2 rounded-xl bg-surface-subtle hover:bg-slate-200 text-slate-800 font-semibold text-xs border border-surface-border flex items-center gap-1.5 transition">
+              <i data-lucide="plus-circle" class="w-4 h-4 text-rose-500"></i>
+              <span data-i18n="btnAddViolation">Log Fine</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 9 Core Vehicles Cards Grid -->
+        <div id="fleetCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated via renderFleet() -->
+        </div>
+
+        <!-- Contracts & Rental Agreements Table -->
+        <div class="bg-white rounded-2xl border border-surface-border shadow-card overflow-hidden">
+          <div class="p-4 border-b border-surface-border flex items-center justify-between bg-surface-subtle/30">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <i data-lucide="scroll-text" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-extrabold text-sm text-slate-900" data-i18n="contractsTitle">Executed Rental Contracts</h3>
+                <p class="text-[11px] text-slate-500">Live lease bindings authorized by Manager Faisal & Hussein</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono font-bold text-slate-500" id="contractsCountDisplay">2 Active Agreements</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-surface-subtle text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-surface-border">
+                <tr>
+                  <th class="p-3.5">Contract Ref</th>
+                  <th class="p-3.5">Vehicle & Plate</th>
+                  <th class="p-3.5">Client Name</th>
+                  <th class="p-3.5">Period (Dates)</th>
+                  <th class="p-3.5">Rate / Day</th>
+                  <th class="p-3.5">Security Deposit</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contractsTableBody" class="divide-y divide-surface-border text-slate-700">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: PERSONNEL & STAFF (HR) ================= -->
+      <section id="view-personnel" class="content-view hidden space-y-6">
+        
+        <div class="bg-white p-5 rounded-2xl border border-surface-border shadow-card flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-extrabold text-base text-slate-900" data-i18n="staffHeadTitle">ANAMIRA Personnel & Operations Staff</h3>
+              <p class="text-xs text-slate-500">Assigned executive, PRO, operational, and accounting personnel</p>
+            </div>
+          </div>
+          <button onclick="triggerBiometricTimecard()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center gap-2">
+            <i data-lucide="fingerprint" class="w-4 h-4"></i>
+            <span data-i18n="btnBiometric">Biometric TC Clock-In All</span>
+          </button>
+        </div>
+
+        <!-- 5 Official Staff Cards Grid -->
+        <div id="staffCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated with Hussein, Essa, Faisal, Fuad, Abu Saed -->
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 3: ACCOUNTING & VOUCHERS ================= -->
+      <section id="view-accounting" class="content-view hidden space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Chart of Accounts Tree -->
+          <div class="bg-white p-5 rounded-2xl border border-surface-border shadow-card space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-surface-border">
+              <div class="flex items-center gap-2">
+                <i data-lucide="git-fork" class="w-4 h-4 text-emerald-600"></i>
+                <h4 class="font-bold text-sm text-slate-900" data-i18n="chartHeader">Chart of Accounts (COA)</h4>
+              </div>
+              <span class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-600">AED</span>
+            </div>
+
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-3 rounded-xl bg-surface-subtle border border-surface-border">
+                <div class="font-bold text-slate-900 flex justify-between">
+                  <span>1000 • ASSETS</span>
+                  <span class="text-indigo-600 font-bold">2,150,000.00</span>
+                </div>
+                <div class="pl-3 mt-1.5 space-y-1 text-slate-500 text-[11px]">
+                  <div class="flex justify-between"><span>1010 Bank Cash (ADCB)</span><span>195,000.00</span></div>
+                  <div class="flex justify-between"><span>1020 Fleet Vehicles (9 Cars)</span><span>1,850,000.00</span></div>
+                  <div class="flex justify-between"><span>1030 Accounts Receivable</span><span>105,000.00</span></div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-surface-subtle border border-surface-border">
+                <div class="font-bold text-slate-900 flex justify-between">
+                  <span>2000 • LIABILITIES</span>
+                  <span class="text-rose-600 font-bold">245,000.00</span>
+                </div>
+                <div class="pl-3 mt-1.5 space-y-1 text-slate-500 text-[11px]">
+                  <div class="flex justify-between"><span>2010 Customer Deposits (Escrow)</span><span>95,000.00</span></div>
+                  <div class="flex justify-between"><span>2020 VAT Payable (5% FTA)</span><span>14,200.00</span></div>
+                  <div class="flex justify-between"><span>2030 Trade Payables</span><span>135,800.00</span></div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-surface-subtle border border-surface-border">
+                <div class="font-bold text-slate-900 flex justify-between">
+                  <span>4000 • REVENUE</span>
+                  <span class="text-emerald-600 font-bold">482,900.00</span>
+                </div>
+                <div class="pl-3 mt-1.5 space-y-1 text-slate-500 text-[11px]">
+                  <div class="flex justify-between"><span>4010 Fleet Rental Leases</span><span>420,500.00</span></div>
+                  <div class="flex justify-between"><span>4020 Trade & Parts Sales</span><span>62,400.00</span></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-100 text-[11px] text-indigo-900">
+              <span class="font-bold">Lead Controller:</span> Abu Saed (Senior Accountant) performs weekly reconciliation with Emirates NBD & ADCB accounts.
+            </div>
+          </div>
+
+          <!-- Balanced Double-Entry Journal Voucher Creator -->
+          <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-surface-border shadow-card space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-surface-border">
+              <div>
+                <h4 class="font-bold text-sm text-slate-900" data-i18n="jvHeader">Issue Journal Voucher (Double-Entry Engine)</h4>
+                <p class="text-xs text-slate-500">Verified by Accounting (Abu Saed) before General Ledger posting.</p>
+              </div>
+              <span class="text-xs font-mono font-bold bg-brand-50 text-brand-700 px-2.5 py-1 rounded-lg border border-brand-200">JV-ANAMIRA-2026-04</span>
+            </div>
+
+            <form id="journalVoucherForm" onsubmit="handlePostVoucher(event)" class="space-y-3 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblVoucherType">Voucher Type</label>
+                  <select class="w-full p-2 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+                    <option>JV - Journal Voucher</option>
+                    <option>RV - Cash Receipt</option>
+                    <option>PV - Payment Voucher</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblPostingDate">Posting Date</label>
+                  <input type="date" value="2026-11-11" class="w-full p-2 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblMemo">Reference / Memo</label>
+                  <input type="text" id="jvMemoInput" required value="Fleet Insurance Renewal - Chevrolet & Ford" class="w-full p-2 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+                </div>
+              </div>
+
+              <!-- Debit and Credit Rows -->
+              <div class="p-3 bg-surface-subtle/80 rounded-xl border border-surface-border space-y-2">
+                <div class="grid grid-cols-12 gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <div class="col-span-6">Account Designation</div>
+                  <div class="col-span-3">Debit (AED)</div>
+                  <div class="col-span-3">Credit (AED)</div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center">
+                  <select class="col-span-6 p-2 rounded-lg border border-surface-border bg-white text-xs font-medium">
+                    <option selected>5020 • Fleet Comprehensive Insurance</option>
+                    <option>1010 • Bank Cash ADCB</option>
+                    <option>4010 • Fleet Rental Revenues</option>
+                  </select>
+                  <input type="number" id="debitLine1" value="3200" oninput="verifyJvBalance()" class="col-span-3 p-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-bold">
+                  <input type="number" id="creditLine1" value="0" oninput="verifyJvBalance()" class="col-span-3 p-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-bold">
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center">
+                  <select class="col-span-6 p-2 rounded-lg border border-surface-border bg-white text-xs font-medium">
+                    <option>5020 • Fleet Comprehensive Insurance</option>
+                    <option selected>1010 • Bank Cash ADCB</option>
+                    <option>2010 • Customer Escrow Deposit</option>
+                  </select>
+                  <input type="number" id="debitLine2" value="0" oninput="verifyJvBalance()" class="col-span-3 p-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-bold">
+                  <input type="number" id="creditLine2" value="3200" oninput="verifyJvBalance()" class="col-span-3 p-2 rounded-lg border border-surface-border bg-white font-mono text-xs font-bold">
+                </div>
+              </div>
+
+              <!-- Balance status verification pill -->
+              <div id="jvBalanceIndicator" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between text-xs font-bold">
+                <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Double-entry Balanced</span>
+                <span class="font-mono" id="jvTotalPill">Total: AED 3,200.00</span>
+              </div>
+
+              <div class="flex justify-end pt-2">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm flex items-center gap-2">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                  <span data-i18n="btnPostVoucher">Commit Voucher to Ledger</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 4: TRADE & CASHIER (POS) ================= -->
+      <section id="view-trade" class="content-view hidden space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Catalog List -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-600"></i>
+                <h4 class="font-bold text-sm text-slate-900" data-i18n="posCatalog">Trade Parts & Quick Services Catalog</h4>
+              </div>
+              <input 
+                type="text" 
+                id="posSearchInput" 
+                placeholder="Filter catalog items..." 
+                class="text-xs px-3 py-1.5 rounded-xl border border-surface-border bg-surface-subtle"
+                oninput="renderTradeCatalog()"
+              >
+            </div>
+
+            <div id="posCatalogGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Checkout Register Terminal -->
+          <div class="bg-white p-5 rounded-2xl border border-surface-border shadow-card flex flex-col h-full min-h-[500px]">
+            <div class="flex items-center justify-between pb-3 border-b border-surface-border">
+              <div class="flex items-center gap-2">
+                <i data-lucide="receipt" class="w-4 h-4 text-indigo-600"></i>
+                <h4 class="font-bold text-sm text-slate-900" data-i18n="posRegister">Cashier Register</h4>
+              </div>
+              <button onclick="clearPosCart()" class="text-[11px] text-rose-500 font-bold hover:underline" data-i18n="btnClearCart">Clear</button>
+            </div>
+
+            <!-- Customer Picker -->
+            <div class="py-3 border-b border-surface-border">
+              <label class="block text-[11px] font-bold text-slate-500 mb-1" data-i18n="lblCustomer">Billing Client</label>
+              <select id="posClientSelect" class="w-full text-xs p-2 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+                <option value="Walk-in Cash Client">Walk-in Cash Client</option>
+                <option value="Rashid Al-Nuaimi (VIP)">Rashid Al-Nuaimi (VIP)</option>
+                <option value="Emirates Fleet Care LLC">Emirates Fleet Care LLC</option>
+                <option value="Sultan Al-Ketbi">Sultan Al-Ketbi</option>
+              </select>
+            </div>
+
+            <!-- Items in Cart -->
+            <div id="posCartItemsContainer" class="flex-1 py-3 overflow-y-auto space-y-2 text-xs">
+              <!-- Dynamically rendered -->
+            </div>
+
+            <!-- Totals & Payment -->
+            <div class="pt-3 border-t border-surface-border space-y-2 text-xs">
+              <div class="flex justify-between text-slate-500">
+                <span data-i18n="lblSubtotal">Subtotal</span>
+                <span id="posSubtotalDisplay" class="font-mono font-medium">AED 0.00</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span data-i18n="lblVat">UAE VAT (5%)</span>
+                <span id="posVatDisplay" class="font-mono font-medium">AED 0.00</span>
+              </div>
+              <div class="flex justify-between text-sm font-extrabold text-slate-900 pt-2 border-t border-surface-border">
+                <span data-i18n="lblTotal">Total Payable</span>
+                <span id="posGrandDisplay" class="font-mono text-emerald-600">AED 0.00</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="executePosCheckout('Cash')" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition">
+                  <i data-lucide="banknote" class="w-4 h-4"></i>
+                  <span data-i18n="btnCash">Cash</span>
+                </button>
+                <button onclick="executePosCheckout('Visa/Card')" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition">
+                  <i data-lucide="credit-card" class="w-4 h-4"></i>
+                  <span data-i18n="btnCard">Card / Terminal</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 5: GPS TRACKING TELEMETRY ================= -->
+      <section id="view-tracking" class="content-view hidden space-y-6">
+        
+        <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+              <i data-lucide="radar" class="w-4 h-4 text-indigo-600"></i>
+              <span data-i18n="gpsRadarTitle">Live Fleet Telemetry & Highway Speed Radar</span>
+            </h3>
+            <p class="text-xs text-slate-500">Monitoring all 9 fleet vehicles across Dubai & Northern Emirates (E11 / E311 / E66)</p>
+          </div>
+          <button onclick="pingVehicleTelemetry()" class="px-3.5 py-2 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold border border-indigo-200 flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Ping GPS Transponders
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Mock UAE Highway Radar Map Container -->
+          <div class="lg:col-span-2 bg-slate-900 rounded-2xl p-4 border border-slate-800 relative overflow-hidden min-h-[440px] flex flex-col justify-between text-white shadow-xl">
+            <!-- Simulated grid lines -->
+            <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#6366f1 1.5px, transparent 1.5px), linear-gradient(to right, #334155 1px, transparent 1px), linear-gradient(to bottom, #334155 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+            <div class="relative z-10 flex items-center justify-between text-xs bg-slate-800/90 backdrop-blur px-3 py-2 rounded-xl border border-slate-700">
+              <span class="font-mono text-emerald-400 font-bold flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> SATELLITE LOCK: 9 NODES LINKED
+              </span>
+              <span class="text-slate-400 font-mono text-[11px]">DUBAI - ABU DHABI CORRIDOR</span>
+            </div>
+
+            <!-- Radar Area with the 9 Cars Placed -->
+            <div id="radarMapPlane" class="relative z-10 flex-1 my-3">
+              <!-- Dynamically populated markers with plate tags -->
+            </div>
+
+            <div class="relative z-10 flex items-center justify-between text-[11px] text-slate-400 bg-slate-800/90 backdrop-blur px-3 py-2 rounded-xl border border-slate-700 font-mono">
+              <span>Geofence Status: <strong class="text-emerald-400">All Inside UAE Zone</strong></span>
+              <span>RTA Speed Limit: <strong class="text-white">120 km/h</strong></span>
+            </div>
+          </div>
+
+          <!-- Live Telemetry Details Sidebar -->
+          <div class="bg-white p-4 rounded-2xl border border-surface-border shadow-card space-y-3">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-400" data-i18n="telemetryList">Fleet Telemetry State</h4>
+            <div id="gpsFleetList" class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= PRINTABLE RECEIPT TEMPLATE (FOR POS/CONTRACTS) ================= -->
+  <div id="printableReceiptArea" class="hidden p-8 bg-white text-slate-900 font-mono text-xs max-w-md mx-auto">
+    <div class="text-center pb-4 border-b border-dashed border-slate-400">
+      <h2 class="text-lg font-black tracking-tight">ANAMIRA FLEET & TRADE LLC</h2>
+      <p>Dubai Main Hub, Sheikh Zayed Road, UAE</p>
+      <p>TRN Tax No: 10049281000003</p>
+      <p id="receiptDateP" class="mt-1 text-[10px]">Date: 2026-11-11</p>
+    </div>
+    <div class="py-3 border-b border-dashed border-slate-400 space-y-1" id="receiptLinesP">
+      <!-- Injected before print -->
+    </div>
+    <div class="py-3 space-y-1">
+      <div class="flex justify-between"><span>Subtotal:</span><span id="receiptSubtotalP">0.00</span></div>
+      <div class="flex justify-between"><span>VAT (5%):</span><span id="receiptVatP">0.00</span></div>
+      <div class="flex justify-between font-bold text-sm"><span>TOTAL (AED):</span><span id="receiptTotalP">0.00</span></div>
+    </div>
+    <div class="text-center pt-4 border-t border-dashed border-slate-400 text-[10px]">
+      <p>Approved by Operations Manager: Faisal</p>
+      <p>Thank you for choosing ANAMIRA DASHBOARD.</p>
+    </div>
+  </div>
+
+  <!-- ================= MODALS & FORMS ================= -->
+
+  <!-- 1. NEW RENTAL CONTRACT MODAL -->
+  <div id="rentalModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-surface-border max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-surface-border mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center">
+            <i data-lucide="file-signature" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-slate-900" data-i18n="modalRentTitle">Authorize New Rental Contract</h3>
+            <p class="text-xs text-slate-500">Assigns fleet vehicle and binds client agreement</p>
+          </div>
+        </div>
+        <button onclick="closeModal('rentalModal')" class="p-1 rounded-lg hover:bg-surface-subtle text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="rentalContractForm" onsubmit="handleContractSubmission(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" data-i18n="formSelectCar">Select Available Fleet Vehicle</label>
+          <select id="modalVehicleSelect" required onchange="onVehicleSelectChange()" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-semibold text-slate-800">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="formCustomerName">Client Full Name</label>
+            <input type="text" id="modalCustomerName" required placeholder="e.g., Rashid Al-Nuaimi" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="formPhone">Mobile Number (WhatsApp Enabled)</label>
+            <input type="text" id="modalCustomerPhone" required placeholder="+971 50 123 4567" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="formStartDate">Lease Start Date</label>
+            <input type="date" id="modalStartDate" required class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="formEndDate">Return End Date</label>
+            <input type="date" id="modalEndDate" required class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="formDailyRate">Agreed Daily Rate (AED)</label>
+            <input type="number" id="modalDailyRate" required class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-mono font-bold text-brand-600">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="formDeposit">Security Deposit (AED)</label>
+            <input type="number" id="modalDeposit" required value="2000" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-mono font-bold">
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-2.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-amber-600 shrink-0"></i>
+          <span>Inspected by Agent Hussein. Vehicle odometer and full exterior body checks confirmed.</span>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-surface-border">
+          <button type="button" onclick="closeModal('rentalModal')" class="px-4 py-2 rounded-xl bg-surface-subtle hover:bg-slate-200 text-slate-700 font-bold" data-i18n="btnCancel">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-glow flex items-center gap-1.5" data-i18n="btnAuthorizeContract">
+            <i data-lucide="check" class="w-4 h-4"></i> Authorize & Sign Lease
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. LOG TRAFFIC FINE (BREACH) MODAL -->
+  <div id="fineModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-surface-border">
+      <div class="flex items-center justify-between pb-3 border-b border-surface-border mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-slate-900" data-i18n="modalFineTitle">Log Traffic Violation (Breach)</h3>
+            <p class="text-xs text-slate-500">Sync with Dubai Police / RTA Traffic Radar</p>
+          </div>
+        </div>
+        <button onclick="closeModal('fineModal')" class="p-1 rounded-lg hover:bg-surface-subtle text-slate-400">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="fineForm" onsubmit="handleFineSubmission(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Target Fleet Vehicle</label>
+          <select id="fineCarSelect" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-semibold">
+            <!-- Options dynamically populated with 9 cars -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Violation Description / Reason</label>
+          <select id="fineReasonSelect" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+            <option value="Radar Speed Violation (>20 km/h over limit)">Radar Speed Violation (>20 km/h over limit)</option>
+            <option value="Salik Toll Gate Insufficient Balance">Salik Toll Gate Insufficient Balance</option>
+            <option value="Improper Lane Discipline / Sudden Swerving">Improper Lane Discipline / Sudden Swerving</option>
+            <option value="Unauthorized Parking Zone (RTA Dubai)">Unauthorized Parking Zone (RTA Dubai)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Fine Amount (AED)</label>
+            <input type="number" id="fineAmountInput" required value="600" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-mono font-bold text-rose-600">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Assigned To</label>
+            <select id="fineResponsibilitySelect" class="w-full p-2.5 rounded-xl border border-surface-border bg-surface-subtle font-medium">
+              <option value="Client (Direct Invoice)">Client (Direct Invoice)</option>
+              <option value="Company Operations">Company Operations</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-surface-border">
+          <button type="button" onclick="closeModal('fineModal')" class="px-4 py-2 rounded-xl bg-surface-subtle text-slate-700 font-bold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm">Record Breach</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= GLOBAL TOAST NOTIFICATION CONTAINER ================= -->
+  <div id="globalToast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 max-w-sm">
+    <div id="toastIconWrapper" class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+      <i data-lucide="check" class="w-4 h-4"></i>
+    </div>
+    <div class="text-xs">
+      <div id="toastTitle" class="font-bold">Notice</div>
+      <div id="toastBody" class="text-slate-300 text-[11px]">System action executed successfully.</div>
+    </div>
+  </div>
+
+  <!-- ================= EMBEDDED JAVASCRIPT APP LOGIC ================= -->
+  <script>
+    // =========================================================================
+    // 1. OFFICIAL DATASETS: 9 CARS & 5 PERSONNEL PROFILES
+    // =========================================================================
+    
+    // Exact official 9 vehicles requested
+    const initialCars = [
+      {
+        id: 'CAR-01',
+        model: 'Corvette Stingray 2023',
+        year: 2023,
+        plate: 'DXB-C-98124',
+        category: 'Sport / Supercar',
+        rate: 850,
+        status: 'available',
+        odometer: 14200,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 30, y: 35 },
+        speed: 0
+      },
+      {
+        id: 'CAR-02',
+        model: 'Chevrolet Camaro 2023',
+        year: 2023,
+        plate: 'DXB-M-55210',
+        category: 'Muscle / Coupe',
+        rate: 550,
+        status: 'available',
+        odometer: 22100,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 62, y: 28 },
+        speed: 0
+      },
+      {
+        id: 'CAR-03',
+        model: 'GMC Yukon 2024',
+        year: 2024,
+        plate: 'DXB-Y-10901',
+        category: 'Full-size Luxury SUV',
+        rate: 750,
+        status: 'rented',
+        odometer: 18400,
+        finesCount: 1,
+        finesAmount: 600,
+        currentClient: 'Rashid Al-Nuaimi (VIP)',
+        coords: { x: 45, y: 60 },
+        speed: 84
+      },
+      {
+        id: 'CAR-04',
+        model: 'Ford Mustang 2025',
+        year: 2025,
+        plate: 'DXB-F-77402',
+        category: 'Sport / Convertible',
+        rate: 600,
+        status: 'available',
+        odometer: 8300,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 75, y: 40 },
+        speed: 0
+      },
+      {
+        id: 'CAR-05',
+        model: 'Nissan Rogue 2024',
+        year: 2024,
+        plate: 'DXB-R-31994',
+        category: 'Compact SUV',
+        rate: 220,
+        status: 'available',
+        odometer: 31500,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 20, y: 65 },
+        speed: 0
+      },
+      {
+        id: 'CAR-06',
+        model: 'Nissan Sentra 2024',
+        year: 2024,
+        plate: 'DXB-S-44102',
+        category: 'Economy Sedan',
+        rate: 140,
+        status: 'available',
+        odometer: 29000,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 50, y: 75 },
+        speed: 0
+      },
+      {
+        id: 'CAR-07',
+        model: 'Nissan Sentra 2025',
+        year: 2025,
+        plate: 'DXB-S-88219',
+        category: 'Economy Sedan',
+        rate: 160,
+        status: 'available',
+        odometer: 6400,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 80, y: 70 },
+        speed: 0
+      },
+      {
+        id: 'CAR-08',
+        model: 'Nissan Sentra 2023',
+        year: 2023,
+        plate: 'DXB-S-12003',
+        category: 'Economy Sedan',
+        rate: 120,
+        status: 'maintenance',
+        odometer: 52300,
+        finesCount: 0,
+        finesAmount: 0,
+        currentClient: null,
+        coords: { x: 15, y: 20 },
+        speed: 0
+      },
+      {
+        id: 'CAR-09',
+        model: 'Mercedes Benz E 320 2023',
+        year: 2023,
+        plate: 'DXB-E-66321',
+        category: 'Executive Sedan',
+        rate: 650,
+        status: 'rented',
+        odometer: 27800,
+        finesCount: 1,
+        finesAmount: 520,
+        currentClient: 'Emirates Fleet Care LLC',
+        coords: { x: 55, y: 45 },
+        speed: 98
+      }
+    ];
+
+    // Exact official 5 personnel requested
+    const initialStaff = [
+      {
+        id: 'STAFF-01',
+        name: 'Hussein',
+        title: 'Agent',
+        role: 'Operations Agent & Vehicle Inspections',
+        department: 'Fleet Operations',
+        avatar: 'HU',
+        phone: '+971 50 812 4431',
+        status: 'Active (On-Duty)',
+        tasksCount: 14,
+        checkInTime: '07:45 AM'
+      },
+      {
+        id: 'STAFF-02',
+        name: 'Essa',
+        title: 'PRO',
+        role: 'Public Relations Officer & Legal Archiving',
+        department: 'Government & Legal Affairs',
+        avatar: 'ES',
+        phone: '+971 52 449 8810',
+        status: 'Active (On-Duty)',
+        tasksCount: 8,
+        checkInTime: '08:00 AM'
+      },
+      {
+        id: 'STAFF-03',
+        name: 'Faisal',
+        title: 'Manager',
+        role: 'General Manager',
+        department: 'Executive Management',
+        avatar: 'FS',
+        phone: '+971 50 119 0022',
+        status: 'Active (On-Duty)',
+        tasksCount: 22,
+        checkInTime: '07:30 AM'
+      },
+      {
+        id: 'STAFF-04',
+        name: 'Fuad',
+        title: 'Asst. Manager',
+        role: 'Assistant Manager & Project Lead',
+        department: 'Operations & Strategy',
+        avatar: 'FD',
+        phone: '+971 55 901 3324',
+        status: 'Active (On-Duty)',
+        tasksCount: 17,
+        checkInTime: '07:50 AM'
+      },
+      {
+        id: 'STAFF-05',
+        name: 'Abu Saed',
+        title: 'Accounting',
+        role: 'Senior Accountant & Financial Controller',
+        department: 'Finance & General Ledger',
+        avatar: 'AS',
+        phone: '+971 50 338 7761',
+        status: 'Active (On-Duty)',
+        tasksCount: 19,
+        checkInTime: '08:10 AM'
+      }
+    ];
+
+    // Initial contracts pre-loaded for the 2 rented cars
+    const initialContracts = [
+      {
+        id: 'CNT-2026-091',
+        carId: 'CAR-03',
+        carName: 'GMC Yukon 2024 (DXB-Y-10901)',
+        customer: 'Rashid Al-Nuaimi (VIP)',
+        phone: '+971 50 999 1234',
+        startDate: '2026-11-01',
+        endDate: '2026-11-18',
+        dailyRate: 750,
+        deposit: 3000,
+        status: 'Active',
+        agent: 'Hussein'
+      },
+      {
+        id: 'CNT-2026-092',
+        carId: 'CAR-09',
+        carName: 'Mercedes Benz E 320 2023 (DXB-E-66321)',
+        customer: 'Emirates Fleet Care LLC',
+        phone: '+971 4 290 8800',
+        startDate: '2026-11-05',
+        endDate: '2026-11-20',
+        dailyRate: 650,
+        deposit: 2500,
+        status: 'Active',
+        agent: 'Hussein'
+      }
+    ];
+
+    // Trade & POS Catalog items
+    const tradeProducts = [
+      { id: 'TP-1', name: 'Mobil 1 Fully Synthetic 5W30 (4L)', sku: 'OIL-M1-5W30', price: 180, stock: 40, category: 'Maintenance' },
+      { id: 'TP-2', name: 'Michelin Pilot Sport 4S 275/35 R19', sku: 'TYR-MICH-01', price: 980, stock: 12, category: 'Tires' },
+      { id: 'TP-3', name: 'Brembo Ceramic Front Brake Pads', sku: 'BRK-BREMBO-F', price: 420, stock: 18, category: 'Spare Parts' },
+      { id: 'TP-4', name: 'RTA Salik Fast-Toll Electronic Tag', sku: 'SLK-TAG-100', price: 120, stock: 50, category: 'Services' },
+      { id: 'TP-5', name: 'Full Interior Nano-Ceramic Protection', sku: 'SRV-CERAMIC', price: 650, stock: 99, category: 'Services' },
+      { id: 'TP-6', name: 'Luxury Swiss Driver Chronograph Watch', sku: 'LUX-WATCH-02', price: 4200, stock: 4, category: 'Watches / Lux' }
+    ];
+
+    // LocalStorage State Management
+    let cars = JSON.parse(localStorage.getItem('anamira_cars')) || initialCars;
+    let staff = JSON.parse(localStorage.getItem('anamira_staff')) || initialStaff;
+    let contracts = JSON.parse(localStorage.getItem('anamira_contracts')) || initialContracts;
+    let posCart = [];
+    let currentFilter = 'all';
+
+    function persistState() {
+      localStorage.setItem('anamira_cars', JSON.stringify(cars));
+      localStorage.setItem('anamira_staff', JSON.stringify(staff));
+      localStorage.setItem('anamira_contracts', JSON.stringify(contracts));
+    }
+
+    // =========================================================================
+    // 2. DUAL-LANGUAGE LOCALIZATION (ENGLISH & ARABIC RTL)
+    // =========================================================================
+    const i18nStrings = {
+      en: {
+        systemOnline: "Operations Online",
+        modRental: "Rental & Fleet",
+        subFleetOverview: "Fleet Inventory (9 Cars)",
+        subNewAgreement: "New Rental Contract",
+        subContractsTable: "Agreements & Leases",
+        subBreaches: "Log Traffic Breach / Fine",
+        subMaintenance: "Workshop & Servicing",
+        modPersonnel: "Personnel & Staff",
+        subStaffDirectory: "Staff Directory (5 Members)",
+        subDutyClock: "TC Biometric Clock-in",
+        subPayroll: "Payroll & Wages",
+        modAccounting: "Accounting & Ledger",
+        subChartAccounts: "Chart of Accounts",
+        subJournalVouchers: "Journal Vouchers (JV)",
+        subReports: "General Ledger Reports",
+        modTrade: "Trade & Cashier",
+        subPosCashier: "Cashier POS Terminal",
+        subLpo: "LPO & Purchase Orders",
+        subCarTrade: "Vehicle Sales Offers",
+        modTracking: "GPS Telemetry",
+        modInventory: "Inventory & Stores",
+        subStockItems: "Items & Catalog",
+        subStoreTransfer: "Warehouse Transfer",
+        modAssets: "Fixed Assets",
+        subAssetRegister: "Fleet Asset Registry",
+        subDepreciation: "Depreciation Schedule",
+        modArchive: "Archive & Legal",
+        subCorrespondence: "Mail In / Mail Out",
+        subLawsuits: "Legal Cases & Lawsuits",
+        modTables: "Tables & Setup",
+        subBranches: "Branches & Hubs",
+        subBanks: "Bank Accounts",
+        subReset: "Reset Demo Data",
+        statFleetSize: "Fleet Size",
+        statFleetSub: "Official fleet registered in Anamira",
+        statDailyYield: "Active Day Yield",
+        statYieldSub: "GMC Yukon + Mercedes E 320",
+        statTeamMembers: "Personnel Team",
+        statTeamSub: "Hussein, Essa, Faisal, Fuad, Abu Saed",
+        statTrafficFines: "Traffic Violations",
+        statFinesSub: "Dubai Police & RTA Salik logs",
+        lblFilter: "Status:",
+        filterAll: "All (9)",
+        filterAvailable: "Available (6)",
+        filterRented: "Rented (2)",
+        filterMaintenance: "Workshop (1)",
+        btnCreateAgreement: "New Rental Agreement",
+        btnAddViolation: "Log Fine",
+        contractsTitle: "Executed Rental Contracts",
+        staffHeadTitle: "ANAMIRA Personnel & Operations Staff",
+        btnBiometric: "Biometric TC Clock-In All",
+        chartHeader: "Chart of Accounts (COA)",
+        jvHeader: "Issue Journal Voucher (Double-Entry Engine)",
+        lblVoucherType: "Voucher Type",
+        lblPostingDate: "Posting Date",
+        lblMemo: "Reference / Memo",
+        btnPostVoucher: "Commit Voucher to Ledger",
+        posCatalog: "Trade Parts & Quick Services Catalog",
+        posRegister: "Cashier Register",
+        btnClearCart: "Clear",
+        lblCustomer: "Billing Client",
+        lblSubtotal: "Subtotal",
+        lblVat: "UAE VAT (5%)",
+        lblTotal: "Total Payable",
+        btnCash: "Cash",
+        btnCard: "Card / Terminal",
+        gpsRadarTitle: "Live Fleet Telemetry & Highway Speed Radar",
+        telemetryList: "Fleet Telemetry State",
+        modalRentTitle: "Authorize New Rental Contract",
+        formSelectCar: "Select Available Fleet Vehicle",
+        formCustomerName: "Client Full Name",
+        formPhone: "Mobile Number (WhatsApp Enabled)",
+        formStartDate: "Lease Start Date",
+        formEndDate: "Return End Date",
+        formDailyRate: "Agreed Daily Rate (AED)",
+        formDeposit: "Security Deposit (AED)",
+        btnCancel: "Cancel",
+        btnAuthorizeContract: "Authorize & Sign Lease",
+        modalFineTitle: "Log Traffic Violation (Breach)",
+        topGps: "GPS Live",
+        topPos: "POS Terminal"
+      },
+      ar: {
+        systemOnline: "العمليات متصلة ومباشرة",
+        modRental: "تأجير وأسطول المركبات",
+        subFleetOverview: "سجل الأسطول (9 مركبات)",
+        subNewAgreement: "عقد إيجار جديد",
+        subContractsTable: "العقود والاتفاقيات",
+        subBreaches: "تسجيل مخالفة مرورية",
+        subMaintenance: "الصيانة والورشة",
+        modPersonnel: "شؤون الموظفين وفريق العمل",
+        subStaffDirectory: "دليل الموظفين (5 أفراد)",
+        subDutyClock: "تسجيل حضور البصمة (TC)",
+        subPayroll: "الرواتب ومسير الأجور",
+        modAccounting: "المحاسبة ودفتر الأستاذ",
+        subChartAccounts: "دليل الحسابات",
+        subJournalVouchers: "سندات القيد المحاسبي (JV)",
+        subReports: "تقارير الحسابات العامة",
+        modTrade: "التجارة ونقاط البيع",
+        subPosCashier: "شاشة الكاشير والمبيعات",
+        subLpo: "أوامر الشراء LPO",
+        subCarTrade: "عروض مبيعات المركبات",
+        modTracking: "تتبع المركبات GPS",
+        modInventory: "المستودعات وقطع الغيار",
+        subStockItems: "كتالوج الأصناف",
+        subStoreTransfer: "مناقلات المستودعات",
+        modAssets: "الأصول الثابتة",
+        subAssetRegister: "سجل أصول الأسطول",
+        subDepreciation: "جدول الإهلاك السنوي",
+        modArchive: "الأرشيف والشؤون القانونية",
+        subCorrespondence: "الوارد والصادر الحكومي",
+        subLawsuits: "القضايا والمحاكم",
+        modTables: "الجداول والإعدادات",
+        subBranches: "الفروع والمقرات",
+        subBanks: "الحسابات المصرفية",
+        subReset: "استعادة البيانات الافتراضية",
+        statFleetSize: "حجم الأسطول",
+        statFleetSub: "الأسطول المعتمد في لوحة أناميرة",
+        statDailyYield: "العائد اليومي الساري",
+        statYieldSub: "جمس يوكن + مرسيدس E 320",
+        statTeamMembers: "طاقم العمل",
+        statTeamSub: "حسين، عيسى، فيصل، فؤاد، أبو ساعد",
+        statTrafficFines: "المخالفات المرورية",
+        statFinesSub: "سجلات شرطة دبي وسالك RTA",
+        lblFilter: "الحالة:",
+        filterAll: "الكل (9)",
+        filterAvailable: "متاح (6)",
+        filterRented: "مؤجر (2)",
+        filterMaintenance: "في الصيانة (1)",
+        btnCreateAgreement: "إنشاء عقد إيجار",
+        btnAddViolation: "إضافة مخالفة",
+        contractsTitle: "عقود التأجير السارية المعتمدة",
+        staffHeadTitle: "دليل الكادر الإداري والتشغيلي لأنميرة",
+        btnBiometric: "تسجيل بصمة الدوام للجميع",
+        chartHeader: "شجرة الحسابات العامة",
+        jvHeader: "تحرير سند قيد مزدوج متوازن",
+        lblVoucherType: "نوع السند",
+        lblPostingDate: "تاريخ القيد",
+        lblMemo: "البيان / الشرح",
+        btnPostVoucher: "ترحيل السند لدفتر الأستاذ",
+        posCatalog: "كتالوج قطع الغيار والخدمات السريعة",
+        posRegister: "شاشة الكاشير",
+        btnClearCart: "تفريغ",
+        lblCustomer: "العميل المستلم",
+        lblSubtotal: "المجموع قبل الضريبة",
+        lblVat: "ضريبة القيمة المضافة (5%)",
+        lblTotal: "الإجمالي للدفع",
+        btnCash: "نقداً",
+        btnCard: "بطاقة دفع / فيزا",
+        gpsRadarTitle: "شاشة التتبع المباشر ورادار السرعة",
+        telemetryList: "حالة إشارات الأسطول",
+        modalRentTitle: "اعتماد عقد تأجير مركبة جديد",
+        formSelectCar: "اختر المركبة المتاحة",
+        formCustomerName: "اسم المستأجر الكامل",
+        formPhone: "رقم الهاتف والواتساب",
+        formStartDate: "تاريخ بداية التأجير",
+        formEndDate: "تاريخ الإرجاع المقرر",
+        formDailyRate: "سعر التأجير اليومي المتفق عليه (درهم)",
+        formDeposit: "مبلغ التأمين المسترد (درهم)",
+        btnCancel: "إلغاء",
+        btnAuthorizeContract: "توقيع واعتماد العقد",
+        modalFineTitle: "تسجيل مخالفة مرورية على المركبة",
+        topGps: "تتبع مباشر",
+        topPos: "شاشة الكاشير"
+      }
+    };
+
+    let currentLanguage = 'en';
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
+      document.documentElement.lang = currentLanguage;
+      document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+      if (currentLanguage === 'ar') {
+        document.body.classList.add('font-arabic');
+        document.getElementById('langDisplayLabel').textContent = 'English';
+        document.getElementById('appLogoTitle').textContent = 'لوحة تحكم أناميرة';
+        document.getElementById('appLogoSubtitle').textContent = 'نظام إدارة وتأجير الأساطيل والعمليات المؤسسية';
+      } else {
+        document.body.classList.remove('font-arabic');
+        document.getElementById('langDisplayLabel').textContent = 'عربي';
+        document.getElementById('appLogoTitle').textContent = 'ANAMIRA DASHBOARD';
+        document.getElementById('appLogoSubtitle').textContent = 'Enterprise Fleet & Operations Management System';
+      }
+
+      // Update all data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18nStrings[currentLanguage][key]) {
+          el.textContent = i18nStrings[currentLanguage][key];
+        }
+      });
+
+      showToast('Language Switched', currentLanguage === 'ar' ? 'تم تفعيل اللغة العربية بالكامل' : 'English language enabled');
+    }
+
+    document.getElementById('langToggleBtn').addEventListener('click', toggleLanguage);
+
+    // =========================================================================
+    // 3. TOAST NOTIFICATION UTILITY
+    // =========================================================================
+    function showToast(title, message, isError = false) {
+      const toast = document.getElementById('globalToast');
+      const titleEl = document.getElementById('toastTitle');
+      const bodyEl = document.getElementById('toastBody');
+      const iconWrap = document.getElementById('toastIconWrapper');
+
+      titleEl.textContent = title;
+      bodyEl.textContent = message;
+
+      if (isError) {
+        iconWrap.className = "w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0";
+        iconWrap.innerHTML = '<i data-lucide="alert-octagon" class="w-4 h-4"></i>';
+      } else {
+        iconWrap.className = "w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0";
+        iconWrap.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+      }
+      lucide.createIcons();
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+
+    function showModuleToast(moduleName) {
+      showToast('Module Navigation', `Loaded official workspace: ${moduleName}`);
+    }
+
+    // =========================================================================
+    // 4. VIEW / TAB SWITCHER
+    // =========================================================================
+    function switchTab(viewId, subAction = null) {
+      document.querySelectorAll('.content-view').forEach(v => v.classList.add('hidden'));
+      const target = document.getElementById(`view-${viewId}`);
+      if (target) {
+        target.classList.remove('hidden');
+      }
+
+      if (viewId === 'rental') {
+        renderFleet();
+        renderContracts();
+      } else if (viewId === 'personnel') {
+        renderStaff();
+      } else if (viewId === 'trade') {
+        renderTradeCatalog();
+        renderPosCart();
+      } else if (viewId === 'tracking') {
+        renderGpsRadar();
+      }
+
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 5. FLEET & RENTAL MODULE RENDERING
+    // =========================================================================
+    function renderFleet() {
+      const container = document.getElementById('fleetCardsContainer');
+      container.innerHTML = '';
+
+      const filtered = cars.filter(c => currentFilter === 'all' ? true : c.status === currentFilter);
+
+      filtered.forEach(car => {
+        let statusBadge = '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">AVAILABLE</span>';
+        if (car.status === 'rented') {
+          statusBadge = '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">ON LEASE</span>';
+        } else if (car.status === 'maintenance') {
+          statusBadge = '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">WORKSHOP</span>';
+        }
+
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-2xl border border-surface-border shadow-card hover:shadow-md transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">${car.plate}</span>
+                <h4 class="font-extrabold text-sm text-slate-900 mt-1.5 leading-snug">${car.model}</h4>
+                <div class="text-[11px] text-slate-500 font-medium">${car.category} • Year ${car.year}</div>
+              </div>
+              ${statusBadge}
+            </div>
+
+            <div class="my-3 py-2.5 border-y border-surface-border grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-400 font-medium block">Daily Rate</span>
+                <span class="font-mono font-black text-slate-900 text-sm">AED ${car.rate}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-medium block">Odometer</span>
+                <span class="font-mono font-bold text-slate-700">${car.odometer.toLocaleString()} km</span>
+              </div>
+            </div>
+
+            ${car.currentClient ? `
+              <div class="mb-3 p-2 rounded-xl bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-950 flex items-center gap-1.5">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+                <span class="truncate">Leased to: <strong>${car.currentClient}</strong></span>
+              </div>
+            ` : ''}
+
+            ${car.finesCount > 0 ? `
+              <div class="mb-3 p-1.5 rounded-xl bg-rose-50 border border-rose-200 text-[11px] text-rose-800 flex items-center justify-between font-mono">
+                <span class="flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600"></i> ${car.finesCount} Fine(s)</span>
+                <strong>AED ${car.finesAmount}</strong>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            ${car.status === 'available' ? `
+              <button onclick="openNewRentalModal('${car.id}')" class="flex-1 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-glow flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="key" class="w-3.5 h-3.5"></i> Lease Now
+              </button>
+            ` : car.status === 'rented' ? `
+              <button onclick="returnRentalCar('${car.id}')" class="flex-1 py-2 rounded-xl bg-surface-subtle hover:bg-slate-200 text-slate-800 font-bold text-xs border border-surface-border transition">
+                Check In Return
+              </button>
+            ` : `
+              <button onclick="markCarAvailable('${car.id}')" class="flex-1 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-200 transition">
+                Release From Workshop
+              </button>
+            `}
+            <button onclick="locateCarGps('${car.id}')" class="p-2 rounded-xl bg-surface-subtle hover:bg-slate-200 text-slate-600 border border-surface-border" title="Locate on Radar">
+              <i data-lucide="navigation" class="w-4 h-4 text-indigo-600"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateMetrics();
+      lucide.createIcons();
+    }
+
+    function applyFleetFilter(status) {
+      currentFilter = status;
+      document.querySelectorAll('.fleet-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-status') === status) {
+          btn.className = "fleet-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-sm";
+        } else {
+          btn.className = "fleet-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface-subtle hover:bg-slate-200 text-slate-700";
+        }
+      });
+      renderFleet();
+    }
+
+    function renderContracts() {
+      const tbody = document.getElementById('contractsTableBody');
+      tbody.innerHTML = '';
+
+      contracts.forEach(cnt => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-surface-subtle/50 transition";
+        tr.innerHTML = `
+          <td class="p-3.5 font-mono font-bold text-brand-600">${cnt.id}</td>
+          <td class="p-3.5 font-semibold text-slate-900">${cnt.carName}</td>
+          <td class="p-3.5 font-medium text-slate-800">${cnt.customer}</td>
+          <td class="p-3.5 font-mono text-[11px] text-slate-500">${cnt.startDate} → ${cnt.endDate}</td>
+          <td class="p-3.5 font-mono font-bold">AED ${cnt.dailyRate}</td>
+          <td class="p-3.5 font-mono">AED ${cnt.deposit}</td>
+          <td class="p-3.5">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">${cnt.status}</span>
+          </td>
+          <td class="p-3.5 text-right space-x-2">
+            <button onclick="printRentalAgreement('${cnt.id}')" class="text-indigo-600 font-bold hover:underline">Print</button>
+            <button onclick="closeContract('${cnt.id}')" class="text-rose-600 font-bold hover:underline">Close</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('contractsCountDisplay').textContent = `${contracts.length} Active Agreements`;
+    }
+
+    function updateMetrics() {
+      const availableCount = cars.filter(c => c.status === 'available').length;
+      document.getElementById('metricAvailableRatio').textContent = `${availableCount} Ready`;
+      
+      let dailyYield = 0;
+      cars.filter(c => c.status === 'rented').forEach(c => dailyYield += c.rate);
+      document.getElementById('metricDailyYield').textContent = `AED ${dailyYield.toLocaleString()}`;
+
+      let totalFines = 0;
+      cars.forEach(c => totalFines += c.finesAmount);
+      document.getElementById('metricFinesTotal').textContent = `AED ${totalFines.toLocaleString()}`;
+    }
+
+    // =========================================================================
+    // 6. CONTRACT AUTHORIZATION & MODAL HANDLERS
+    // =========================================================================
+    function openNewRentalModal(preSelectedCarId = null) {
+      const modal = document.getElementById('rentalModal');
+      const select = document.getElementById('modalVehicleSelect');
+      select.innerHTML = '';
+
+      cars.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.model} (${c.plate}) - Daily: AED ${c.rate} [${c.status.toUpperCase()}]`;
+        if (preSelectedCarId && c.id === preSelectedCarId) {
+          opt.selected = true;
+        } else if (!preSelectedCarId && c.status === 'available' && !select.value) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+
+      const today = new Date().toISOString().split('T')[0];
+      const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+      document.getElementById('modalStartDate').value = today;
+      document.getElementById('modalEndDate').value = nextWeek;
+
+      onVehicleSelectChange();
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function onVehicleSelectChange() {
+      const carId = document.getElementById('modalVehicleSelect').value;
+      const target = cars.find(c => c.id === carId);
+      if (target) {
+        document.getElementById('modalDailyRate').value = target.rate;
+      }
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleContractSubmission(e) {
+      e.preventDefault();
+      const carId = document.getElementById('modalVehicleSelect').value;
+      const clientName = document.getElementById('modalCustomerName').value;
+      const phone = document.getElementById('modalCustomerPhone').value;
+      const start = document.getElementById('modalStartDate').value;
+      const end = document.getElementById('modalEndDate').value;
+      const rate = Number(document.getElementById('modalDailyRate').value);
+      const deposit = Number(document.getElementById('modalDeposit').value);
+
+      const targetCar = cars.find(c => c.id === carId);
+      if (targetCar) {
+        targetCar.status = 'rented';
+        targetCar.currentClient = clientName;
+      }
+
+      const newContractId = `CNT-2026-${Math.floor(100 + Math.random() * 900)}`;
+      contracts.unshift({
+        id: newContractId,
+        carId: carId,
+        carName: `${targetCar.model} (${targetCar.plate})`,
+        customer: clientName,
+        phone: phone,
+        startDate: start,
+        endDate: end,
+        dailyRate: rate,
+        deposit: deposit,
+        status: 'Active',
+        agent: 'Hussein'
+      });
+
+      persistState();
+      renderFleet();
+      renderContracts();
+      closeModal('rentalModal');
+
+      confetti({ particleCount: 70, spread: 60 });
+      showToast('Agreement Authorized', `Contract ${newContractId} signed! Vehicle ${targetCar.plate} released to ${clientName}.`);
+    }
+
+    function returnRentalCar(carId) {
+      const target = cars.find(c => c.id === carId);
+      if (target) {
+        target.status = 'available';
+        target.currentClient = null;
+        target.speed = 0;
+        persistState();
+        renderFleet();
+        showToast('Vehicle Checked In', `${target.model} (${target.plate}) returned to yard and inspected by Hussein.`);
+      }
+    }
+
+    function markCarAvailable(carId) {
+      const target = cars.find(c => c.id === carId);
+      if (target) {
+        target.status = 'available';
+        persistState();
+        renderFleet();
+        showToast('Workshop Release', `${target.model} service completed and placed in available fleet.`);
+      }
+    }
+
+    function openFineModal() {
+      const modal = document.getElementById('fineModal');
+      const select = document.getElementById('fineCarSelect');
+      select.innerHTML = '';
+
+      cars.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.model} (${c.plate})`;
+        select.appendChild(opt);
+      });
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function handleFineSubmission(e) {
+      e.preventDefault();
+      const carId = document.getElementById('fineCarSelect').value;
+      const reason = document.getElementById('fineReasonSelect').value;
+      const amount = Number(document.getElementById('fineAmountInput').value);
+
+      const target = cars.find(c => c.id === carId);
+      if (target) {
+        target.finesCount += 1;
+        target.finesAmount += amount;
+      }
+
+      persistState();
+      renderFleet();
+      closeModal('fineModal');
+      showToast('Traffic Breach Logged', `AED ${amount} recorded for ${target.plate} (${reason})`, true);
+    }
+
+    function printRentalAgreement(cntId) {
+      const cnt = contracts.find(c => c.id === cntId);
+      if (!cnt) return;
+
+      document.getElementById('receiptDateP').textContent = `Date: ${new Date().toLocaleDateString()}`;
+      document.getElementById('receiptLinesP').innerHTML = `
+        <div class="flex justify-between font-bold"><span>Agreement:</span><span>${cnt.id}</span></div>
+        <div class="flex justify-between"><span>Vehicle:</span><span>${cnt.carName}</span></div>
+        <div class="flex justify-between"><span>Client:</span><span>${cnt.customer}</span></div>
+        <div class="flex justify-between"><span>Period:</span><span>${cnt.startDate} to ${cnt.endDate}</span></div>
+        <div class="flex justify-between"><span>Daily Lease Rate:</span><span>AED ${cnt.dailyRate}</span></div>
+        <div class="flex justify-between"><span>Security Escrow Deposit:</span><span>AED ${cnt.deposit}</span></div>
+        <div class="flex justify-between"><span>Operations Inspector:</span><span>Agent Hussein</span></div>
+      `;
+      document.getElementById('receiptSubtotalP').textContent = `AED ${cnt.dailyRate * 7}`;
+      document.getElementById('receiptVatP').textContent = `AED ${(cnt.dailyRate * 7 * 0.05).toFixed(2)}`;
+      document.getElementById('receiptTotalP').textContent = `AED ${(cnt.dailyRate * 7 * 1.05 + cnt.deposit).toFixed(2)}`;
+
+      window.print();
+    }
+
+    function closeContract(cntId) {
+      contracts = contracts.filter(c => c.id !== cntId);
+      persistState();
+      renderContracts();
+      showToast('Agreement Closed', `Contract ${cntId} settled with Abu Saed and archived.`);
+    }
+
+    // =========================================================================
+    // 7. PERSONNEL & STAFF DIRECTORY
+    // =========================================================================
+    function renderStaff() {
+      const container = document.getElementById('staffCardsContainer');
+      container.innerHTML = '';
+
+      staff.forEach(member => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-5 rounded-2xl border border-surface-border shadow-card hover:shadow-md transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-extrabold flex items-center justify-center text-sm shadow-sm">
+                  ${member.avatar}
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-base text-slate-900">${member.name}</h4>
+                  <div class="text-xs font-bold text-brand-600">${member.title}</div>
+                </div>
+              </div>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">ON-DUTY</span>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-surface-border space-y-2 text-xs">
+              <div class="flex justify-between text-slate-500">
+                <span>Official Role:</span>
+                <span class="font-semibold text-slate-800 text-right">${member.role}</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>Department:</span>
+                <span class="font-semibold text-slate-800">${member.department}</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>Direct Mobile:</span>
+                <span class="font-mono font-medium text-slate-700">${member.phone}</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>TC Time Card:</span>
+                <span class="font-mono font-bold text-emerald-600">${member.checkInTime}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 mt-3 border-t border-surface-border flex gap-2">
+            <button onclick="pingStaffMember('${member.name}')" class="flex-1 py-2 rounded-xl bg-surface-subtle hover:bg-slate-200 text-slate-800 font-bold text-xs border border-surface-border transition flex items-center justify-center gap-1.5">
+              <i data-lucide="phone-call" class="w-3.5 h-3.5 text-indigo-600"></i> Dispatch
+            </button>
+            <button onclick="showStaffPaySlip('${member.name}', '${member.title}')" class="flex-1 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs border border-brand-200 transition">
+              Pay Slip
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function triggerBiometricTimecard() {
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      staff.forEach(s => s.checkInTime = now);
+      renderStaff();
+      confetti({ particleCount: 30, spread: 45 });
+      showToast('Biometric TC Synced', `All 5 personnel (Hussein, Essa, Faisal, Fuad, Abu Saed) stamped attendance at ${now}.`);
+    }
+
+    function pingStaffMember(name) {
+      showToast('Staff Dispatch', `Direct operational ping transmitted to ${name}.`);
+    }
+
+    function showStaffPaySlip(name, title) {
+      showToast('Payroll Ledger', `Pay Slip for ${name} (${title}) exported to PDF by Accounting Abu Saed.`);
+    }
+
+    // =========================================================================
+    // 8. ACCOUNTING & DOUBLE-ENTRY VOUCHER LOGIC
+    // =========================================================================
+    function verifyJvBalance() {
+      const d1 = Number(document.getElementById('debitLine1').value) || 0;
+      const c1 = Number(document.getElementById('creditLine1').value) || 0;
+      const d2 = Number(document.getElementById('debitLine2').value) || 0;
+      const c2 = Number(document.getElementById('creditLine2').value) || 0;
+
+      const totalDebit = d1 + d2;
+      const totalCredit = c1 + c2;
+
+      const indicator = document.getElementById('jvBalanceIndicator');
+      const totalPill = document.getElementById('jvTotalPill');
+
+      if (totalDebit === totalCredit && totalDebit > 0) {
+        indicator.className = "p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between text-xs font-bold";
+        indicator.innerHTML = `<span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Double-entry Balanced</span><span class="font-mono">Total: AED ${totalDebit.toFixed(2)}</span>`;
+      } else {
+        indicator.className = "p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between text-xs font-bold";
+        indicator.innerHTML = `<span class="flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i> Imbalanced: Difference = AED ${Math.abs(totalDebit - totalCredit).toFixed(2)}</span><span class="font-mono">Dr: ${totalDebit} | Cr: ${totalCredit}</span>`;
+      }
+      lucide.createIcons();
+    }
+
+    function handlePostVoucher(e) {
+      e.preventDefault();
+      const d1 = Number(document.getElementById('debitLine1').value) || 0;
+      const c1 = Number(document.getElementById('creditLine1').value) || 0;
+      const d2 = Number(document.getElementById('debitLine2').value) || 0;
+      const c2 = Number(document.getElementById('creditLine2').value) || 0;
+
+      if (d1 + d2 !== c1 + c2) {
+        showToast('Posting Blocked', 'Journal voucher entries must be strictly balanced (Debit = Credit).', true);
+        return;
+      }
+
+      confetti({ particleCount: 40, spread: 50 });
+      showToast('Voucher Posted', `Journal Voucher committed to General Ledger and signed by Abu Saed.`);
+    }
+
+    // =========================================================================
+    // 9. TRADE & CASHIER (POS) ENGINE
+    // =========================================================================
+    function renderTradeCatalog() {
+      const grid = document.getElementById('posCatalogGrid');
+      grid.innerHTML = '';
+      const filter = (document.getElementById('posSearchInput').value || '').toLowerCase();
+
+      const items = tradeProducts.filter(p => p.name.toLowerCase().includes(filter) || p.sku.toLowerCase().includes(filter));
+
+      items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = "bg-surface-subtle p-3 rounded-2xl border border-surface-border hover:border-brand-500 transition cursor-pointer flex flex-col justify-between";
+        el.onclick = () => addProductToPosCart(item.id);
+        el.innerHTML = `
+          <div>
+            <span class="text-[9px] font-mono font-bold bg-white text-slate-500 px-1.5 py-0.5 rounded border border-surface-border">${item.sku}</span>
+            <div class="font-bold text-xs text-slate-900 mt-1">${item.name}</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">${item.category} • In Stock: ${item.stock}</div>
+          </div>
+          <div class="flex items-center justify-between mt-3 pt-2 border-t border-surface-border">
+            <span class="font-mono font-extrabold text-xs text-brand-600">AED ${item.price}</span>
+            <button class="w-6 h-6 rounded-lg bg-white border border-surface-border text-brand-600 flex items-center justify-center hover:bg-brand-600 hover:text-white transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+      lucide.createIcons();
+    }
+
+    function addProductToPosCart(itemId) {
+      const prod = tradeProducts.find(p => p.id === itemId);
+      if (!prod) return;
+
+      const existing = posCart.find(c => c.id === itemId);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        posCart.push({ ...prod, qty: 1 });
+      }
+      renderPosCart();
+    }
+
+    function modifyPosCartQty(itemId, delta) {
+      const existing = posCart.find(c => c.id === itemId);
+      if (!existing) return;
+      existing.qty += delta;
+      if (existing.qty <= 0) {
+        posCart = posCart.filter(c => c.id !== itemId);
+      }
+      renderPosCart();
+    }
+
+    function clearPosCart() {
+      posCart = [];
+      renderPosCart();
+    }
+
+    function renderPosCart() {
+      const container = document.getElementById('posCartItemsContainer');
+      container.innerHTML = '';
+
+      if (posCart.length === 0) {
+        container.innerHTML = `
+          <div class="h-44 flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="shopping-bag" class="w-8 h-8 stroke-1 mb-1"></i>
+            <span>Register cart is empty</span>
+          </div>
+        `;
+        document.getElementById('posSubtotalDisplay').textContent = 'AED 0.00';
+        document.getElementById('posVatDisplay').textContent = 'AED 0.00';
+        document.getElementById('posGrandDisplay').textContent = 'AED 0.00';
+        lucide.createIcons();
+        return;
+      }
+
+      let subtotal = 0;
+      posCart.forEach(item => {
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+
+        const row = document.createElement('div');
+        row.className = "p-2.5 rounded-xl bg-surface-subtle border border-surface-border flex items-center justify-between";
+        row.innerHTML = `
+          <div class="flex-1 pr-2">
+            <div class="font-bold text-slate-800 truncate">${item.name}</div>
+            <div class="text-[10px] text-slate-400 font-mono">AED ${item.price} each</div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="modifyPosCartQty('${item.id}', -1)" class="w-5 h-5 rounded bg-white border border-surface-border flex items-center justify-center font-bold">-</button>
+            <span class="font-mono font-bold w-4 text-center">${item.qty}</span>
+            <button onclick="modifyPosCartQty('${item.id}', 1)" class="w-5 h-5 rounded bg-white border border-surface-border flex items-center justify-center font-bold">+</button>
+          </div>
+          <div class="w-16 text-right font-mono font-bold text-slate-900">
+            ${itemTotal.toFixed(2)}
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      const vat = subtotal * 0.05;
+      const grand = subtotal + vat;
+
+      document.getElementById('posSubtotalDisplay').textContent = `AED ${subtotal.toFixed(2)}`;
+      document.getElementById('posVatDisplay').textContent = `AED ${vat.toFixed(2)}`;
+      document.getElementById('posGrandDisplay').textContent = `AED ${grand.toFixed(2)}`;
+
+      lucide.createIcons();
+    }
+
+    function executePosCheckout(method) {
+      if (posCart.length === 0) {
+        showToast('Empty Register', 'Please add catalog items or parts before checkout.', true);
+        return;
+      }
+      const client = document.getElementById('posClientSelect').value;
+      const total = document.getElementById('posGrandDisplay').textContent;
+      
+      confetti({ particleCount: 45, spread: 50 });
+      showToast('Sale Completed', `Invoiced ${total} via ${method} to ${client}. Printed receipt prepared.`);
+      clearPosCart();
+    }
+
+    // =========================================================================
+    // 10. GPS RADAR SIMULATOR WITH 9 CARS
+    // =========================================================================
+    function renderGpsRadar() {
+      const plane = document.getElementById('radarMapPlane');
+      const list = document.getElementById('gpsFleetList');
+      plane.innerHTML = '';
+      list.innerHTML = '';
+
+      cars.forEach(car => {
+        // Marker on dark radar map
+        const dot = document.createElement('div');
+        dot.className = "absolute gps-marker-pulse transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group";
+        dot.style.left = `${car.coords.x}%`;
+        dot.style.top = `${car.coords.y}%`;
+
+        let colorDot = car.status === 'rented' ? 'bg-indigo-400' : 'bg-emerald-400';
+        if (car.status === 'maintenance') colorDot = 'bg-amber-400';
+
+        dot.innerHTML = `
+          <div class="w-3.5 h-3.5 rounded-full ${colorDot} border-2 border-white shadow-glow"></div>
+          <div class="hidden group-hover:block absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[10px] font-mono px-2 py-1 rounded-md shadow-2xl whitespace-nowrap z-30 border border-slate-700">
+            ${car.model}<br/>
+            Plate: ${car.plate} | Speed: ${car.speed} km/h
+          </div>
+        `;
+        plane.appendChild(dot);
+
+        // Sidebar card
+        const row = document.createElement('div');
+        row.className = "p-2.5 rounded-xl bg-surface-subtle border border-surface-border flex items-center justify-between text-xs";
+        row.innerHTML = `
+          <div>
+            <div class="font-extrabold text-slate-800">${car.model}</div>
+            <div class="text-[10px] font-mono text-slate-400">${car.plate}</div>
+          </div>
+          <div class="text-right">
+            <span class="font-mono font-bold ${car.speed > 80 ? 'text-indigo-600' : 'text-slate-500'}">${car.speed} km/h</span>
+            <div class="text-[10px] font-semibold uppercase text-slate-400">${car.status}</div>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function pingVehicleTelemetry() {
+      cars.forEach(car => {
+        if (car.status === 'rented') {
+          car.coords.x = Math.min(88, Math.max(12, car.coords.x + (Math.random() * 10 - 5)));
+          car.coords.y = Math.min(88, Math.max(12, car.coords.y + (Math.random() * 10 - 5)));
+          car.speed = Math.floor(Math.random() * 40 + 75);
+        }
+      });
+      persistState();
+      renderGpsRadar();
+      showToast('Telemetry Refreshed', '9 live satellite transponder packets verified.');
+    }
+
+    function locateCarGps(carId) {
+      switchTab('tracking');
+      const target = cars.find(c => c.id === carId);
+      if (target) {
+        showToast('Radar Focused', `Pinging transponder for ${target.model} (${target.plate})`);
+      }
+    }
+
+    // =========================================================================
+    // 11. GLOBAL SEARCH & RESET DEMO
+    // =========================================================================
+    document.getElementById('globalSearchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) return;
+
+      const matchedCar = cars.find(c => c.model.toLowerCase().includes(q) || c.plate.toLowerCase().includes(q));
+      if (matchedCar) {
+        switchTab('rental');
+        currentFilter = 'all';
+        renderFleet();
+        return;
+      }
+
+      const matchedStaff = staff.find(s => s.name.toLowerCase().includes(q) || s.role.toLowerCase().includes(q));
+      if (matchedStaff) {
+        switchTab('personnel');
+      }
+    });
+
+    function resetToOfficialDefaults() {
+      localStorage.removeItem('anamira_cars');
+      localStorage.removeItem('anamira_staff');
+      localStorage.removeItem('anamira_contracts');
+      cars = [...initialCars];
+      staff = [...initialStaff];
+      contracts = [...initialContracts];
+      persistState();
+      renderFleet();
+      renderContracts();
+      renderStaff();
+      renderGpsRadar();
+      showToast('System Reset', 'Restored exact factory demo records for ANAMIRA DASHBOARD.');
+    }
+
+    // Sidebar accordion toggles
+    document.querySelectorAll('.nav-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.nav-module-group');
+        const list = group.querySelector('.nav-sub-list');
+        const chevron = btn.querySelector('.nav-chevron');
+        if (list) {
+          list.classList.toggle('hidden');
+          if (chevron) {
+            chevron.classList.toggle('rotate-180');
+          }
+        }
+      });
+    });
+
+    // Mobile sidebar toggle button
+    document.getElementById('sidebarToggleBtn').addEventListener('click', () => {
+      const sidebar = document.getElementById('mainSidebar');
+      sidebar.classList.toggle('-translate-x-full');
+      sidebar.classList.toggle('absolute');
+      sidebar.classList.toggle('h-full');
+    });
+
+    // =========================================================================
+    // 12. INITIALIZATION ON WINDOW LOAD
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderFleet();
+      renderContracts();
+      renderStaff();
+      renderTradeCatalog();
+      renderPosCart();
+      renderGpsRadar();
+      verifyJvBalance();
+    });
+  </script>
+</body>
+</html>
